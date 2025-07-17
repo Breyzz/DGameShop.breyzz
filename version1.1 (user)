@@ -3,33 +3,37 @@
 #include <stdlib.h>
 
 struct admin {
-    
+    char username[50];
+    char password[50];
 };
 
 struct user {
     char username[50];
     char password[50];
-    char nama[50];
+    char email[100];
+    char no_telp[50];
     char feedback[50];
     int saldo;
-};
-
-struct developer
-{
-
+    int developer;
 };
 
 struct game {
     char judul[50];
     char genre[50];
     char deskripsi[256];
+    char platform[50];
+    char penggembang[50];
+    char tanggalRilis[50];
     int harga;
+    float rating;
 };
 
 FILE *fuser;
 FILE *fadmin;
 FILE *fdeveloper;
 FILE *fgame;
+FILE *ffeedback;
+FILE *fpendapatan;
 
 void MenuLogin() {
     int pilihan;
@@ -85,11 +89,11 @@ void LoginUser() {
     while (percobaan < max_percobaan) { 
         printf("Username: ");
         fgets(username, sizeof(username), stdin);
-        username[strcspn(username, "\n")] = 0;
+        username[strcspn(username, "\n")] = '\0';
 
         printf("Password: ");
         fgets(password, sizeof(password), stdin);
-        password[strcspn(password, "\n")] = 0;
+        password[strcspn(password, "\n")] = '\0';
 
         if(bacaUser(&user, username)) {
             if(strcmp(user.password, password) == 0) {
@@ -126,11 +130,11 @@ void RegistrasiUser(){
         printf("\n=== REGISTRASI USER ===\n");
         printf("Masukkan username: ");
         fgets(username, sizeof(username), stdin);
-        username[strcspn(username, "\n")] = 0;
+        username[strcspn(username, "\n")] = '\0';
 
         printf("Masukkan password: ");
         fgets(password, sizeof(password), stdin);
-        password[strcspn(password, "\n")] = 0;
+        password[strcspn(password, "\n")] = '\0';
 
         strcpy(user.username, username);
         strcpy(user.password, password);
@@ -343,8 +347,59 @@ void StorePage(){
             break;
     }
 }
-void Searching(){
 
+void ToLower(char *string) {
+    for(int i = 0; string[i]; i++) {
+        string[i] = tolower(string[i]);
+    }
+}
+
+void Searching() {
+    FILE *fgame;
+    struct game games;
+    char namaGame[50];
+    char input_lower[50], game_lower[50];
+    int ditemukan = 0;
+
+    printf("=== SEARCH GAME ===\n");
+    printf("Nama Game : ");
+    fgets(namaGame, sizeof(namaGame), stdin);
+    namaGame[strcspn(namaGame, "\n")] = '\0';
+
+    strcpy(input_lower, namaGame);
+    ToLower(input_lower);
+
+    fgame = fopen("games.dat", "rb");
+    if(!fgame) {
+        printf("\nGagal membuka file!\n");
+        return;
+    }
+
+    while(fread(&games, sizeof(struct game), 1, fgame)) {
+        strcpy(game_lower, games.judul);
+        ToLower(game_lower);
+
+        if(strcmp(input_lower, game_lower) == 0) {
+            ditemukan = 1;
+
+            printf("\nGame ditemukan!\n");
+            printf("Judul           : %s\n", games.judul);
+            printf("Genre           : %s\n", games.genre);
+            printf("Platform        : %s\n", games.platform);
+            printf("Penggembang     : %s\n", games.penggembang);
+            printf("Tanggal Rilis   : %s\n", games.tanggalRilis);
+            printf("Harga           : %d\n", games.harga);
+            printf("Rating          : %.1f\n", games.rating);
+
+            fclose(fgame);
+
+            if(!ditemukan) {
+                printf("Game tidak tersedia!\n");
+                system("cls");
+                StorePage();
+            }
+        }
+    }
 }
 void GamePage(){
 
